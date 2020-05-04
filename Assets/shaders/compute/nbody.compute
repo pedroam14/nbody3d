@@ -1,0 +1,50 @@
+﻿#pragma kernel NBody
+
+uint bodyCount;
+float gravConstant;
+float deltaTime;
+float softening;
+
+struct Particle
+{
+	float4 body; // body.xyz represents body position. body.w represents body mass.
+	float3 vel;  // represents body velocity.
+};
+
+RWStructuredBuffer<Particle> buffer;
+
+// bodyi  : Position and mass of body i
+// bodyj  : Position and mass of body j
+// ai     : Acceleration accumulator for body i
+float3 ai(float4 bodyi, float4 bodyj, float3 ai) 
+{
+	float jmass = bodyj.a;
+	float3 dist = bodyj.xyz - bodyi.xyz;  // distance vector between body i and body j
+	float distl = length(dist); // magnitude of the distance
+	return ai + (jmass*dist) / pow(distl*distl + softening*softening, 3./2.);
+}
+
+[numthreads(4,1,1)]
+void NBody (uint3 id : SV_DispatchThreadID)
+{
+	// Calculate the interaction forces for this particle with every other particle
+	float4 ibody = buffer[id.x].body;
+
+	float3 accel;
+	[loop]
+	for(uint j = 0; j < bodyCount; j++) {
+		if(id.x != j)
+		{
+			float4 jbody = buffer[j].body;
+			accel = ai(ibody, jbody, accel);
+		}
+	}
+	GroupMemoryBarrierWithGroupSync();
+
+	float3 ivel = buffer[id.x].vel + deltaTime * gravConstant * accel;
+	buffer[id.x].vel = ivel;
+	ibody.xyz += ivel;
+	buffer[id.x].body = ibody;
+}
+
+
