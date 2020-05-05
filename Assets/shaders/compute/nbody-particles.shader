@@ -4,6 +4,7 @@ Shader "Custom/NBody Particles"
 {
 	Properties 
 	{
+        _Color ("Main Color", Color) = (1,1,1,1)
 		_SpriteTex ("Base (RGB)", 2D) = "white" {}
 		_Size ("Size", Range(0, 3)) = 0.5
 	}
@@ -51,12 +52,12 @@ Shader "Custom/NBody Particles"
 
 				// Shader programs
 
-				//GeometryShaderIn vertex_main(appdata_base v)
-				//{
-				//	GeometryShaderIn output;
-				//	output.pos =  mul(unity_ObjectToWorld, v.vertex);
-				//	return output;
-				//}
+				GeometryShaderIn vertex_main(appdata_base v)
+				{
+					GeometryShaderIn output;
+					output.pos =  mul(unity_ObjectToWorld, v.vertex);
+					return output;
+				}
 
 				GeometryShaderIn vertex_main(uint id : SV_VertexID, uint inst : SV_InstanceID)
 				{

@@ -3,7 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NBodySim : MonoBehaviour {
+public class NBodySim : MonoBehaviour
+{
 
     [SerializeField]
     private int nBodies = 100;
@@ -40,34 +41,44 @@ public class NBodySim : MonoBehaviour {
     private long frame;
 
 
-    struct ParticleBody {
+    struct ParticleBody
+    {
         public Vector3 pos;
         public float mass;
         public Vector3 vel;
     };
 
-    void Start() {
+    void Start()
+    {
         //Application.targetFrameRate = targetFramerate;
         Setup(nBodies);
         Init(nBodies);
     }
 
-    void Update() {
+    void Update()
+    {
         frame++;
 
-        if(simulate) {
+        if (simulate)
+        {
             RunComputeShader();
         }
     }
 
-    void OnDestroy() {
+    void OnDestroy()
+    {
         Cleanup();
     }
 
-    void Setup(int maxCount) {
-        try {
+    void Setup(int maxCount)
+    {
+        try
+        {
             kernel = computeShader.FindKernel("NBody");
-        } catch(UnityException ex) {
+        }
+        catch (UnityException ex)
+        {
+            Debug.Log(ex);
             Debug.Break();
         }
 
@@ -78,20 +89,23 @@ public class NBodySim : MonoBehaviour {
         computeShader.SetBuffer(kernel, "buffer", buffer);
     }
 
-    void Cleanup() {
+    void Cleanup()
+    {
         buffer.Dispose();
     }
 
-    void Init(int count) {
+    void Init(int count)
+    {
         // init simulation data
         computeShader.SetInt("bodyCount", nBodies);
         computeShader.SetFloat("bodyMassM", bodyMassMultiplier);
         computeShader.SetFloat("gravConstant", gConstant);
-        computeShader.SetFloat("deltaTime", (1f/(float)targetFramerate) * timeScale);
+        computeShader.SetFloat("deltaTime", (1f / (float)targetFramerate) * timeScale);
         computeShader.SetFloat("softening", softening);
 
         data = new ParticleBody[count];
-        for(int i = 0; i < data.Length; i++) {
+        for (int i = 0; i < data.Length; i++)
+        {
             ParticleBody p = new ParticleBody();
             p.pos = UnityEngine.Random.onUnitSphere;
             p.mass = UnityEngine.Random.value;
@@ -101,21 +115,25 @@ public class NBodySim : MonoBehaviour {
 
         buffer.SetData(data);
 
-        
+
     }
 
-    void RunComputeShader() {
+    void RunComputeShader()
+    {
         computeShader.Dispatch(kernel, data.Length, 1, 1);
     }
 
-    void OnRenderObject() {
+    void OnRenderObject()
+    {
         // particle rendering using gpu
-        if(render) {
+        if (render)
+        {
             renderMaterial.SetFloat("_Size", particleSize);
+            renderMaterial.SetColor("_Color", new Color(UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value));
             renderMaterial.SetPass(0);
             renderMaterial.SetBuffer("bodies", buffer);
             Graphics.DrawProceduralNow(MeshTopology.Points, nBodies, 0);
-            UnityEngine.Rendering.CommandBuffer b;
+            //UnityEngine.Rendering.CommandBuffer b;
         }
     }
 }
