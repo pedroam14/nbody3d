@@ -28,6 +28,7 @@ Shader "NBodySim/SpriteParticleShader"
 		#pragma vertex vert
 		#pragma geometry geom
 		#pragma fragment frag
+		#pragma multi_compile_instancing
 
 		#include "UnityCG.cginc"
 
