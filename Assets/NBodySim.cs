@@ -31,13 +31,13 @@ namespace NBodySimProject
 
         //	m_numBodies: Sets the number of bodies in the simulation.  This 
         //	should be a multiple of 256.
-        //		
+
         //	p: Sets the width of the tile used in the simulation.
         //	The default is 64.
-        //
+
         //	q: Sets the height of the tile used in the simulation.
         //	The default is 4.
-        //	
+
         //	Note: q is the number of threads per body, and p*q should be 
         //	less than or equal to 256.
 
