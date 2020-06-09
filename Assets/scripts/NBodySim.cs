@@ -11,7 +11,8 @@ public class NBodySim : MonoBehaviour
 
     [SerializeField]
     private int targetFramerate = 60;
-    [SerializeField]
+    
+    [SerializeField,Range(1,10)]
     private float timeScale = 1;
 
     [SerializeField]
